@@ -32,6 +32,7 @@ import org.opensearch.neuralsearch.highlight.single.extractor.QueryTextExtractor
 import com.google.common.collect.ImmutableList;
 import lombok.extern.log4j.Log4j2;
 import org.opensearch.action.ActionRequest;
+import org.opensearch.neuralsearch.query.ABTestQueryBuilder;
 import org.opensearch.neuralsearch.query.NeuralQueryBuilder;
 import org.opensearch.neuralsearch.query.HybridQueryBuilder;
 import org.opensearch.neuralsearch.query.NeuralSparseQueryBuilder;
@@ -101,6 +102,9 @@ import org.opensearch.neuralsearch.processor.AgenticContextResponseProcessor;
 import org.opensearch.neuralsearch.processor.ExplanationResponseProcessor;
 import org.opensearch.neuralsearch.processor.NeuralQueryEnricherProcessor;
 import org.opensearch.neuralsearch.processor.NeuralSparseTwoPhaseProcessor;
+import org.opensearch.neuralsearch.processor.ABTestProcessor;
+import org.opensearch.neuralsearch.processor.ABTestProcessorWorkflow;
+import org.opensearch.neuralsearch.processor.ABTestResponseProcessor;
 import org.opensearch.neuralsearch.processor.NormalizationProcessor;
 import org.opensearch.neuralsearch.processor.NormalizationProcessorWorkflow;
 import org.opensearch.neuralsearch.processor.RRFProcessor;
@@ -111,6 +115,8 @@ import org.opensearch.neuralsearch.processor.TextImageEmbeddingProcessor;
 import org.opensearch.neuralsearch.processor.combination.ScoreCombinationFactory;
 import org.opensearch.neuralsearch.processor.combination.ScoreCombiner;
 import org.opensearch.neuralsearch.processor.factory.ExplanationResponseProcessorFactory;
+import org.opensearch.neuralsearch.processor.factory.ABTestProcessorFactory;
+import org.opensearch.neuralsearch.processor.factory.ABTestResponseProcessorFactory;
 import org.opensearch.neuralsearch.processor.factory.NormalizationProcessorFactory;
 import org.opensearch.neuralsearch.processor.factory.RRFProcessorFactory;
 import org.opensearch.neuralsearch.highlight.batch.processor.SemanticHighlightingFactory;
@@ -255,7 +261,8 @@ public class NeuralSearch extends Plugin
             new QuerySpec<>(HybridQueryBuilder.NAME, HybridQueryBuilder::new, HybridQueryBuilder::fromXContent),
             new QuerySpec<>(NeuralSparseQueryBuilder.NAME, NeuralSparseQueryBuilder::new, NeuralSparseQueryBuilder::fromXContent),
             new QuerySpec<>(NeuralKNNQueryBuilder.NAME, NeuralKNNQueryBuilder::new, NeuralKNNQueryBuilder::fromXContent),
-            new QuerySpec<>(AgenticSearchQueryBuilder.NAME, AgenticSearchQueryBuilder::new, AgenticSearchQueryBuilder::fromXContent)
+            new QuerySpec<>(AgenticSearchQueryBuilder.NAME, AgenticSearchQueryBuilder::new, AgenticSearchQueryBuilder::fromXContent),
+            new QuerySpec<>(ABTestQueryBuilder.NAME, ABTestQueryBuilder::new, ABTestQueryBuilder::fromXContent)
         );
     }
 
@@ -352,7 +359,9 @@ public class NeuralSearch extends Plugin
             NormalizationProcessor.TYPE,
             new NormalizationProcessorFactory(normalizationProcessorWorkflow, scoreNormalizationFactory, scoreCombinationFactory),
             RRFProcessor.TYPE,
-            new RRFProcessorFactory(normalizationProcessorWorkflow, scoreNormalizationFactory, scoreCombinationFactory)
+            new RRFProcessorFactory(normalizationProcessorWorkflow, scoreNormalizationFactory, scoreCombinationFactory),
+            ABTestProcessor.TYPE,
+            new ABTestProcessorFactory(new ABTestProcessorWorkflow())
         );
     }
 
@@ -403,7 +412,9 @@ public class NeuralSearch extends Plugin
             ExplanationResponseProcessor.TYPE,
             new ExplanationResponseProcessorFactory(),
             AgenticContextResponseProcessor.TYPE,
-            new AgenticContextResponseProcessor.Factory()
+            new AgenticContextResponseProcessor.Factory(),
+            ABTestResponseProcessor.TYPE,
+            new ABTestResponseProcessorFactory()
         );
     }
 
